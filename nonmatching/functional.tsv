@@ -1,8 +1,6 @@
 # C for functions the matching build still has as assembly, for OpenRAC's native port of NTSC-U
 # (hostgen.json "candidates"): the US drafts in nonmatching/ (tools/us_names.py --candidates).
 # name	file
-func_0038B120	nonmatching/frontbin/func_0038B120.c
-func_0038B4D0	nonmatching/frontbin/func_0038B4D0.c
 func_0038D2D0	nonmatching/frontbin/func_0038D2D0.c
 func_0038D328	nonmatching/frontbin/func_0038D328.c
 func_0038D5B0	nonmatching/frontbin/func_0038D5B0.c

@@ -1,6 +1,13 @@
 #include "common.h"
 
 /* --- declarations from other files (tools/split_text.py --refresh) --- */
+extern void func_0038E150(s32);
+extern void (*D_001D9A40[2])(s32);
+extern void (*D_001D9A40_00382B20[1])(s32);
+extern void (*D_00226800[])(s32);
+extern void (*D_00226C00[])(s32);
+extern void (*D_00226E00[])(s32);
+extern void (*D_00226A00[])(s32);
 /* --- end of declarations from other files --- */
 
 /* declarations carried from the file this was cut from */
@@ -30,6 +37,15 @@ s32 func_0038E0A8(u8 *p, s32 off, s32 *out) {
 }
 /* localdecomp:end func_0038E0A8 */
 
-INCLUDE_ASM("asm/nonmatchings/text", func_0038E0E8);
-
-LINKER_REMNANT("asm/remnants", func_0038E130);
+/* localdecomp:start func_0038E0E8 */
+extern u8 D_00143E40[];
+extern u8 D_00144440[];
+extern u8 D_0014A240[];
+extern u8 D_0014A840[];
+extern void func_0038DE18(s32, u8 *, u8 *);
+void func_0038E0E8(void) {
+    func_0038DE18(0, D_00144440, D_00143E40);
+    func_0038DE18(1, D_0014A840, D_0014A240);
+    func_0038E150(0);
+}
+/* localdecomp:end func_0038E0E8 */
