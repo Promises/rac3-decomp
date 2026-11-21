@@ -1,10 +1,12 @@
-/* func_L03_004495E8 (L03_004495A8.c; also L07 0045AD08, L34 004303E8): near miss, 5 rows, and only
+/* func_L03_004495E8 (L03_004495A8.c; also L07 0045AD08, L34 004303E8): near miss, 4 rows, and only
  * with file flags it does not have yet. The VU0 j-form helpers (vec_sub_ba, vec_add_ab, vec_sub_ab)
  * need -mvu0-use-vf0-vf2, and retail's `jal func_0038CE68; nop` after the last sqc2 needs @ps2as
  * (GNU as fills that slot with the sqc2); with both added the file's three matched functions
  * (004495A8, 004497E8, 00449838) still match. What differs is one register choice in
- * `i = m->hC8 - m->hCA`: retail loads hC8 into $v1 and hCA into $v0 and subtracts in place
- * (subu $v1,$v1,$v0; sll/sra $v1), this C loads them the other way round and computes in $v0.
+ * `i = m->hC8 - m->hCA`: retail loads hC8 into $v1 (lhu) and hCA into $v0 and subtracts in place
+ * (subu $v1,$v1,$v0; sll/sra $v1). `i = m->hC8; i -= m->hCA;` (this C, 2026-11-21) gets the load
+ * order right and leaves 4 rows: lh instead of lhu for hC8, and the subtraction in $v0
+ * (`i = m->hC8; i = i - m->hCA;` and `i += -m->hCA` give the same 4; a block-local s16 copy 5).
  * Tried: (u16) casts on either operand or the result, i = hC8; i -= hCA (gives lh, 4 rows),
  * -hCA + hC8, s16 temporaries, s32 i with (s16) cast (78 rows), the wrap tests reworded,
  * i in an inner block: all the same 5 rows or worse. Also needs `#include "vu0.h"` in the file. */
@@ -42,7 +44,8 @@ void func_L03_004495E8(int a0, int a1) {
     func_0038CF68(v, v, s);
     vec_add_ab(v, v, o + 0x10);
     func_L01_0045A748(o, v);
-    i = m->hC8 - m->hCA;
+    i = m->hC8;
+    i -= m->hCA;
     if (i < 0) {
         i += t->count;
     } else if (i >= t->count) {

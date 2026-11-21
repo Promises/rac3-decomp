@@ -2,7 +2,12 @@
  * and 06, and only with -mvu0-use-vf0-vf2 and @ps2as on its file's line (src/levels/shared/
  * L03_003B1E38.c has neither; func_L03_003B1E38 still matches with both). Left: when s[0x42] == 2
  * retail sets the zero in $f2 (pitch) and copies it to $f22 (yaw), ours the other way round
- * (three wordings, same bytes); in the t+0x128 branch retail loads s+0x10 before t+0x100. */
+ * (three wordings, same bytes); in the t+0x128 branch retail loads s+0x10 before t+0x100.
+ * 2026-11-21 (t2768): the parameter is `void *`, as src/levels/shared/L03_003B1E38.c declares it
+ * (u8 * conflicts there). vec_sub_ba for the t+0x128 branch breaks the shared vsub/sqc2 tail (171
+ * diff; 6 with vec_sub_ba in both branches: the lqc2 order is a scheduler tie, not source order).
+ * pitch = 0.0f; yaw = pitch; / yaw = pitch = 0.0f; / pitch = yaw = 0.0f; / two zero stores, and
+ * pitch/yaw declaration orders: the same 4 words. */
 #include "common.h"
 #include "vu0.h"
 
@@ -19,7 +24,8 @@ extern f32 func_0038DB00(f32, f32);
 extern f32 func_0038CED8(void *);
 extern void func_L01_0044E850(void *, void *, s32, f32, f32);
 
-void func_L03_003B2158(u8 *s) {
+void func_L03_003B2158(void *arg) {
+    u8 *s = arg;
     u8 *t;
     f32 k1;
     f32 k2;

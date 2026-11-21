@@ -2,6 +2,11 @@
  * with its file's flags: ours keeps a duplicated blez count guard and loads delta.z before it;
  * retail has one guard and loads z after it. Do-while and counting-down wordings keep &axis in an
  * extra saved register instead (161 diff). */
+/* 2026-11-21 (t2768): `if (count <= 0) return;` before the loop gives the same 8 words. `i = count;
+ * do { ... } while (--i);` inside the if gives retail's single blez guard and its count-down
+ * counter ($s2 = $s1), but loop.c then keeps &axis (sp+0x30) in a saved register (an extra $s
+ * register, 161 diff); do/while with i++, while (count--), for (i = count; i > 0; i--) and
+ * i != count do the same or worse. */
 #include "common.h"
 #include "vu0.h"
 
