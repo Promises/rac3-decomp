@@ -70,7 +70,6 @@ function NTSC-U has and src/us/ has no C for.
 | `func_003C1318` | boot_elf | US draft of `func_003C1210` | flags: the US matched it with `@ps2as` (a single-function override) |
 | `func_003C1638` | boot_elf | US draft of `func_003C1530` | symbols: func_003C1558 |
 | `func_003C6420` | boot_elf | Codex wave 11 near miss | flags: byte-exact only with `-O2 -G8 -mno-check-zero-division -mvu0-use-vf0-vf2 @ps2as` (its file's line: `-O2 -G8 -fopt-stack -mno-check-zero-division -mvu0-use-vf0-vf2 @ps2as`) (replaces the earlier draft, US draft of `func_003C62D0`: does not compile); landing test: byte-exact with that line and a config/boot_elf/sq_ra_funcs.txt row, but on 3C5A98.c it breaks func_003C5A98 (26 diff): needs a file of its own at 0x003C6420 |
-| `func_003C6720` | boot_elf | US draft of `func_003C65D0` | near miss: 1 diff with its file's flags (frontbin's draft, renamed, without the typedefs the file already has); the remnant `func_003C6978` after it holds its `jr` delay slot (`addiu $sp, $sp, 0xD0`) |
 | `func_003D30F8` | boot_elf | US draft of `func_003D2F90` | symbols: func_003D2FEC |
 | `func_003D90A8` | boot_elf | US draft of `func_003D8F40` | flags: the US matched it with without `-fopt-stack` (a flag range the PAL file does not have) |
 | `func_003EBE58` | boot_elf | US draft of `func_003EBCF8` | flags: the US matched it with without `-mno-split-addresses` (a single-function override); landing test (2026-11-21): dropping -mno-split-addresses on 3EB700.c breaks 10 matched functions: it needs a file of its own |
@@ -124,7 +123,6 @@ function NTSC-U has and src/us/ has no C for.
 | `func_003C3EC8` | frontbin | US draft of `func_003BE988` | flags: the US matched it with `-mno-split-addresses` `@ps2as` (a single-function override) |
 | `func_003C56E0` | frontbin | US draft of `func_003C0188` | flags: the US matched it with `@ps2as` and without `-mno-split-addresses` (a single-function override) |
 | `func_003C6068` | frontbin | US draft of `func_003C0B10` | flags: the US matched it with `@ps2as` and without `-fopt-stack` `-mno-split-addresses` (a single-function override) |
-| `func_003C6368` | frontbin | US draft of `func_003C0E10` | near miss: 1 diff with its file's flags (once the typedefs the file already has are left out); the remnant `func_003C65C0` after it holds its `jr` delay slot (`addiu $sp, $sp, 0xD0`) |
 | `func_003D6EE8` | frontbin | US draft of `func_003D1978` | flags: the US matched it with `@ps2as` and without `-fopt-stack` (a single-function override) |
 | `func_003D7080` | frontbin | US draft of `func_003D1B10` | near miss: 131 diff with the file's flags (was 136) |
 | `func_003D78E0` | frontbin | US draft of `func_003D2370` | flags: the US matched it with `@ps2as` and without `-fopt-stack` (a single-function override) |
