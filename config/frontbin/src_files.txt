@@ -4,6 +4,8 @@
 src/frontbin/381080.c 00381080
 src/frontbin/381140.c 00381140
 src/frontbin/382380.c 00382380
+src/frontbin/38B120.c 0038B120
+src/frontbin/38B660.c 0038B660
 src/frontbin/38CA08.c 0038CA08
 src/frontbin/38CDB8.c 0038CDB8
 src/frontbin/38CEA8.c 0038CEA8
@@ -18,6 +20,9 @@ src/frontbin/38DBA0.c 0038DBA0
 src/frontbin/38DBD8.c 0038DBD8
 src/frontbin/38DED0.c 0038DED0
 src/frontbin/38E0A8.c 0038E0A8
+src/frontbin/38E138.c 0038E138
+src/frontbin/38FA18.c 0038FA18
+src/frontbin/390388.c 00390388
 src/frontbin/3922B8.c 003922B8
 src/frontbin/392A18.c 00392A18
 src/frontbin/392DF0.c 00392DF0
