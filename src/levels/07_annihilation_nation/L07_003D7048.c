@@ -174,3 +174,5 @@ void func_L07_003D7628(void *arg0) {
 /* localdecomp:end func_L07_003D7628 */
 
 INCLUDE_ASM("asm/levels", func_L07_003D7680);
+
+INCLUDE_ASM("asm/levels", func_L07_003D7AD0);
