@@ -47,7 +47,6 @@ function NTSC-U has and src/us/ has no C for.
 | `func_00396C18` | boot_elf | US draft of `func_00396B30` | flags: the US matched it with `@ps2as` (a single-function override) |
 | `func_00397FC0` | boot_elf | US draft of `func_00397ED8` | flags: the US matched it with `@ps2as` and without `-mno-split-addresses` (a single-function override) |
 | `func_0039BD90` | boot_elf | US draft of `func_0039BC78` | flags: the US matched it with `@ps2as` and without `-mno-split-addresses` (a single-function override); landing test (2026-11-21): `-mvu0-use-vf0-vf2 -O2 -G8 -fopt-stack -mno-check-zero-division -fno-force-mem @ps2as` on 39BD48.c breaks func_0039BD48 and func_0039BDF0: it needs a file of its own |
-| `func_003A3B40` | boot_elf | US draft of `func_003A3A00` | near miss: 19 diff with the file's flags (was 239) |
 | `func_003AA168` | boot_elf | US draft of `func_003AA020` | flags: the US matched it with `@ps2as` (a single-function override) |
 | `func_003AC590` | boot_elf | US draft of `func_003AC3F0` | near miss: 22 diff with the file's flags (was 25) |
 | `func_003ACD00` | boot_elf | US draft of `func_003ACB60` | near miss: 74 diff with the file's flags (was 76) |
@@ -88,7 +87,7 @@ function NTSC-U has and src/us/ has no C for.
 | `func_003F0C98` | boot_elf | US draft of `func_003F0B18` | near miss: 5 diff with the file's flags (was 38) |
 | `func_003F1D50` | boot_elf | US draft of `func_003F1B90` | differs: did not build, or built to other bytes, in PAL |
 | `func_0038B120` | frontbin | US draft of `func_003869E8` | flags: the US matched it with `@ps2as` and without `-fopt-stack` (a single-function override) |
-| `func_0038B4D0` | frontbin | US draft of `func_00386D98` | flags: the US matched it with `@ps2as` and without `-fopt-stack` (a single-function override) |
+| `func_00387B18` | frontbin | written from the assembly | near miss: 153 diff with the file's flags (the frame and the loop match; the stores after the screen-mode branches are scheduled differently); its delay slot is `LINKER_REMNANT(func_00387EE8)` |
 | `func_0038D2D0` | frontbin | US draft of `func_00388B98` | flags: the US matched it with without `@ps2as` (a single-function override) |
 | `func_0038D328` | frontbin | US draft of `func_00388BF0` | flags: the US matched it with without `@ps2as` (a single-function override) |
 | `func_0038D5B0` | frontbin | US draft of `func_00388E78` | flags: the US matched it with without `@ps2as` (a single-function override) |
@@ -99,8 +98,9 @@ function NTSC-U has and src/us/ has no C for.
 | `func_0038D850` | frontbin | US draft of `func_00389118` | flags: the US matched it with without `@ps2as` (a single-function override) |
 | `func_0038DA10` | frontbin | US draft of `func_003892D8` | flags: the US matched it with without `@ps2as` (a single-function override) |
 | `func_0038DA68` | frontbin | US draft of `func_00389330` | flags: the US matched it with without `@ps2as` (a single-function override) |
-| `func_0038DBA0` | frontbin | US draft of `func_00389468` | flags: the US matched it with `-mno-split-addresses` `@ps2as` (a single-function override) |
-| `func_0038E0E8` | frontbin | written from the assembly | boundary: its delay slot (0x38E130) is marked `LINKER_REMNANT(func_0038E130)`; and it needs split addresses where `38E0A8.c` has `-mno-split-addresses` (MATCH with `--mode S` but for that word) |
+| `func_0038DBA0` | frontbin | US draft of `func_00389468` | flags: the US matched it with `-mno-split-addresses` `@ps2as` (a single-function override); plain C without pins: 13 differences (tools/check.py), Promises 2026-11-21 |
+| `func_0038E0E8` | frontbin | port of boot_elf `func_0038E4C8` | cut: MATCH with split addresses only (7 diff with `38E0A8.c`'s `-mno-split-addresses`; the whole file cannot drop it, +24 bytes); needs `38E0A8.c` cut at 0x38E138, which would move another contributor's markers (`func_0038E150` onwards), and its delay slot `LINKER_REMNANT(func_0038E130)` dropped |
+| `func_0038FA18` | frontbin | port of boot_elf `func_0038FDF8` | cut: MATCH with split addresses only (244 diff with `38E0A8.c`'s `-mno-split-addresses`; the whole file cannot drop it, +24 bytes); needs `38E0A8.c` cut at 0x38FA18 and 0x390388, which would move another contributor's markers (`func_00391328` onwards) |
 | `func_0038E150` | frontbin | US draft of `func_00389920` | near miss: 29 diff in plain C; `-mno-split-addresses` folds each table address into its load where retail builds the full address first (the US draft needed register pins) |
 | `func_00391328` | frontbin | US draft of `func_0038CAF0` | near miss: 2 diff with the file's flags (was 21) |
 | `func_003914A0` | frontbin | US draft of `func_0038CC68` | flags: the US matched it with `@ps2as` and without `-mno-split-addresses` (a single-function override) |
