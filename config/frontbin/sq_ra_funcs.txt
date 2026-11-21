@@ -2,3 +2,7 @@
 # One function name per line; the C must already match apart from those two instructions.
 func_003910C0
 func_00391210
+func_003BFAC8
+func_003D6EE8
+func_003D7080
+func_003BD7A0
