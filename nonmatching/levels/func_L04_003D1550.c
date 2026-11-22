@@ -409,16 +409,17 @@ void func_L04_003D1550(u8 *self) {
             *(f32 *)(v + 0xC0) = 0.0f;
         }
         if (*(f32 *)(v + 0xC0) != 0.0f) {
+            u8 *e1;
             n = *(s32 *)(v + 0xBC);
-            if (n == -1 || *(u8 **)((ent = (u8 *)&D_001A30B0_003D1550 + (n << 7)) + 0xDC) != self ||
-                ent[0xD0] == 0) {
+            if (n == -1 || *(u8 **)((e1 = (u8 *)&D_001A30B0_003D1550 + (n << 7)) + 0xDC) != self ||
+                e1[0xD0] == 0) {
                 *(s32 *)(v + 0xBC) = func_003A52A0(3, 4, self);
             }
         } else {
             idx2 = *(s32 *)(v + 0xBC);
             if (idx2 != -1) {
-                ent = (u8 *)&D_001A30B0_003D1550 + (idx2 << 7);
-                if (*(u8 **)(ent + 0xDC) == self && ent[0xD0] != 0) {
+                u8 *e2 = (u8 *)&D_001A30B0_003D1550 + (idx2 << 7);
+                if (*(u8 **)(e2 + 0xDC) == self && e2[0xD0] != 0) {
                     func_003A4F28(idx2);
                 }
             }
