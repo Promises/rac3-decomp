@@ -29,7 +29,7 @@ extern void func_L01_0045BD78(Mo_60C8 *, f32, f32, f32, f32);
 extern void func_L01_0045C150(Mo_60C8 *, Path_60C8 *, s32, s32);
 extern s32 func_L03_00449C30(Mo_60C8 *, s32);
 extern s32 func_L01_0045BDE8(Mo_60C8 *, s32);
-extern void func_L05_00454940(Mo_60C8 *, void *);
+extern s32 func_L05_00454940(Mo_60C8 *, void *);
 extern void func_L05_00454970(Mo_60C8 *, void *);
 extern s32 func_00382468(s32);
 extern f32 *func_00382348(Mo_60C8 *);
@@ -58,7 +58,7 @@ extern f32 func_L05_00355C98(Mo_60C8 *, Vec4 *, Vec4 *);
 extern void func_L05_0035AD60(Mo_60C8 *);
 extern s32 func_L05_00355BD8(Mo_60C8 *, u8 *);
 extern s32 func_L05_00355B80(Mo_60C8 *);
-extern void func_L01_003EBED0(Mo_60C8 *);
+extern s32 func_L01_003EBED0(Mo_60C8 *);
 extern f32 func_L05_00355D60(Mo_60C8 *, Mo_60C8 *);
 extern void func_003C2F58(Mo_60C8 *, s32, Vec4 *);
 extern void func_0038CE20(void *, void *, f32);
@@ -72,8 +72,8 @@ extern s32 D_L05_001DBBE0;
 extern s32 D_L05_001DF6C0;
 extern u8 *D_L05_001DFB9C;
 extern Path_60C8 *D_L05_0021ED80[];
-extern Zones_60C8 *D_L05_001DF7CC;
-extern u8 *D_L05_001DFC80;
+extern u8 *D_L05_001DF7CC;
+extern Spot_60C8 *D_L05_001DFC80;
 
 static __inline__ s32 f_lt_60C8(f32 a, f32 b) { return a < b; }
 
@@ -711,20 +711,20 @@ void func_L05_003560C8(Mo_60C8 *m) {
             if (func_L01_004561B8(m) != 0) {
                 pv->mp[0x3EC/4]->b[0x20] = 4;
                 func_L05_00355EE8((O_35EE8 *)m);
-                if ((pv->i[0x38C/4] != -1) && (D_L05_001DF7CC->a[pv->i[0x38C/4]].n != 0)) {
-                    if (pv->h[0x3F6/2] != 0) {
+                if (pv->i[0x38C/4] != -1) {
+                    if ((((Zones_60C8 *)D_L05_001DF7CC)->a[pv->i[0x38C/4]].n != 0) && (pv->h[0x3F6/2] != 0)) {
                         s32 k;
                         pv->h[0x3F6/2] = 0;
-                        *(u128_t *)(pv->b + 0x350) = ((Spot_60C8 *)(D_L05_001DFC80 + D_L05_001DF7CC->a[pv->i[0x38C/4]].list[0] * 0x80))->pos;
-                        for (k = 0; k < D_L05_001DF7CC->a[pv->i[0x38C/4]].n; k++) {
-                            Spot_60C8 *s = (Spot_60C8 *)(D_L05_001DFC80 + D_L05_001DF7CC->a[pv->i[0x38C/4]].list[k] * 0x80);
+                        *(u128_t *)(pv->b + 0x350) = *(u128_t *)((u8 *)D_L05_001DFC80 + (**(s32 **)(D_L05_001DF7CC + pv->i[0x38C/4] * 0x30 + 0x40) << 7) + 0x30);
+                        for (k = 0; k < ((Zones_60C8 *)D_L05_001DF7CC)->a[pv->i[0x38C/4]].n; k++) {
+                            Spot_60C8 *s = &D_L05_001DFC80[(*(s32 **)(D_L05_001DF7CC + pv->i[0x38C/4] * 0x30 + 0x40))[k]];
                             f32 d;
                             u8 c;
                             sp10.q = s->pos;
                             sp20.q = pv->q[0x220/16];
                             d = func_L05_00355C98(m, &sp10, &sp20);
                             sp30.q = pv->q[0x350/16];
-                            sp40.q = pv->q[0x220/16];
+                            sp40.q = *(u128_t *)(pv->b + 0x220);
                             {
                                 s32 r = (func_L05_00355C98(m, &sp30, &sp40) < d)
                                     || (sp50.q = pv->q[0x350/16], func_L05_00355D00(m->b, &sp50) < 2.0f);
@@ -732,7 +732,7 @@ void func_L05_003560C8(Mo_60C8 *m) {
                             }
                             if (c) {
                                 sp60.q = s->pos;
-                                if (2.0f < func_L05_00355D00(m->b, &sp60)) {
+                                if (func_L05_00355D00(m->b, &sp60) > 2.0f) {
                                     pv->q[0x350/16] = s->pos;
                                 }
                             }
