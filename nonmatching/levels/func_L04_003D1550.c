@@ -1,6 +1,7 @@
 /* Level 4 (Marcadia) and level 26, file L04_003D10D0.c (its line: -O2 -G8 -fopt-stack -mno-check-zero-division
  * -mvu0-use-vf0-vf2 @ps2as). First draft, written by hand from the assembly (task #2944, 2026-11-22).
- * tools/check.py: 98 differences at level 04 and 98 at level 26 with the file's line; 98 with --no-context.
+ * tools/check.py: 96 differences at level 04 and 96 at level 26 with the file's line; 96 with --no-context
+ * (NTSC-U, --version us: 1073, not pursued).
  * - Structure reached: the frame (0xF0, seven 16-byte vectors at sp+0x00..0x60), every call, every branch and
  *   the three-state dispatch on self[0x20] (1 = aiming, 2 = riding, 3 = target tracking) compile to retail's
  *   order; the word count equals retail's (1714 words). The differences are register choices and scheduling.
@@ -12,7 +13,7 @@
  *   `*(vu0_q *)&g = 0` quadword zero (l.973); scoped constant locals `hi`/`lo` in the second stick clamp
  *   (r3-54 a), which load -1.0 before the add as retail does; one float local per value (a shared local
  *   kept every use in a callee-saved register).
- * - Still open (the 98): (1) case 1's join: retail stores self+0x18 in the delay slot of `b` to a shared
+ * - Still open (the 96): (1) case 1's join: retail stores self+0x18 in the delay slot of `b` to a shared
  *   `sw $zero, 0xC0($s2)` placed after the turn code, and tests D_001A4BE0+0x35C with `beql` into that store;
  *   here the store is duplicated in both arms. (2) The case-1 trail point copy: retail's float registers are
  *   f2/f0/f1 and the element pointer is $a0 (here f1/f2/f0 and $a1). (3) The two D_L04_001E2840 store groups:
@@ -20,7 +21,9 @@
  *   (4) Register swaps: $v0/$v1 around D_001A4BE0+0x25C0 before func_L04_003D3B90, $s4 holding the constant 2
  *   (retail) against D_001A4C60's high half (here), the D_001A30B0 element pointer, and the null-target path
  *   at the end of case 3.
- * Stopped at the bounded effort for a first draft (about 15 compiles, 1675 -> 98). */
+ * - Tried without gain: case 1 with a `goto` past a single `*(v + 0xC0) = 0` (534); the D_L04_001E2840
+ *   stores in three other orders (96 each: the order of the C does not move them).
+ * Stopped at the bounded effort for a first draft (about 22 compiles, 1675 -> 96). */
 #include "common.h"
 
 /* localdecomp:start func_L04_003D1550 */
@@ -286,7 +289,7 @@ void func_L04_003D1550(u8 *self) {
                 if (D_001A4BE0.p35C == self) {
                     *(f32 *)(v + 0xC0) = 0.0f;
                 } else {
-                    r2 = func_0038D160(*(f32 *)(&D_001A4BE0.v80) - *(f32 *)(self + 0x10),
+                    r2 = func_0038D160(D_001A4BE0.v80.x - *(f32 *)(self + 0x10),
                                       D_001A4BE0.v80.y - *(f32 *)(self + 0x14));
                     r2 = func_0038DB00(r2, *(f32 *)(self + 0xF8));
                     r2 = func_0038DAB8(r2, 3.14159274f);
