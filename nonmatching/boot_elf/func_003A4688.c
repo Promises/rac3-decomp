@@ -140,13 +140,17 @@ s32 func_003A4688(void) {
     }
     func_0013B620();
     func_003A43E0();
-    m = D_1A30B0_003A4688.b43;
+    {
+    Ch_3A4688 *c0 = D_1A30B0_003A4688.ch;
+    Mgr_3A4688 *mg = (Mgr_3A4688 *)((u8 *)c0 - 0xC0);
+    m = mg->b43;
     if (m & 8) {
         func_0013CF80(2, 0, 0, 0, 0);
     } else if (m & 0x13) {
-        func_0013CF80(2, D_1A30B0_003A4688.b40, D_1A30B0_003A4688.iB4, D_1A30B0_003A4688.b41, D_1A30B0_003A4688.b42);
+        func_0013CF80(2, mg->b40, mg->iB4, mg->b41, mg->b42);
     } else if (m & 4) {
-        func_0013CFF8(2, D_1A30B0_003A4688.iB4, 0xC, 3);
+        func_0013CFF8(2, mg->iB4, 0xC, 3);
+    }
     }
     D_1A30B0_003A4688.b43 = 0;
     if ((D_001D5B94 == 0 || D_001D5B94 == 2) && D_001D5BDC == 0) {
