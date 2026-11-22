@@ -1,8 +1,8 @@
 /* func_003A4688 (PAL boot_elf, src/boot_elf/text/3A2FC0.c, flags -mvu0-use-vf0-vf2 -O2 -G8
    -fopt-stack -mno-check-zero-division @ps2as): the sound manager's per-frame update. Plain-C
    draft written 2026-11-22 from the assembly, starting from Flavius's functional draft
-   (nonmatching/functional/func_003A4688.c, 781 differences with the same line). Near miss: 726
-   differences (tools/check.py --target boot_elf), also 726 with --no-context; the instruction
+   (nonmatching/functional/func_003A4688.c, 781 differences with the same line). Near miss: 583
+   differences (tools/check.py --target boot_elf), also 583 with --no-context (726 at #2942); the instruction
    sequence now lines up with retail's (difflib opcode ratio 0.90 against the functional draft's
    0.69), so the count is mostly register allocation and one-word shifts. NTSC-U: config/us/map.tsv
    says its copy differs (not carried).
@@ -75,8 +75,8 @@ typedef struct {
 
 extern Mgr_3A4688 D_1A30B0_003A4688;
 extern Ch_3A4688 D_1A3170[];
-extern s32 D_2228D0;
-extern f32 D_1A4F30;
+extern s32 D_2228D0[];
+extern f32 D_1A4F30[];
 extern u8 D_001D5BDC;
 extern s32 D_001D5B70;
 extern s32 D_001D5B94;
@@ -123,22 +123,22 @@ s32 func_003A4688(void) {
     Ch_3A4688 *ch;
     Obj_3A4688 *obj;
     s32 a, b, n, cnt, i, r, v, flags, pan, pitch, h, i14, dead;
-    s32 s;
+    s32 s, m, st, k;
     f32 cut, speed, f, div;
 
-    has_x = D_2228D0;
+    has_x = D_2228D0[0];
     cut = 0.0f;
     if (has_x != 0) {
-        cut = D_1A4F30;
+        cut = D_1A4F30[0];
     }
     func_0013B620();
     func_003A43E0();
-    b = D_1A30B0_003A4688.b43;
-    if (b & 8) {
+    m = D_1A30B0_003A4688.b43;
+    if (m & 8) {
         func_0013CF80(2, 0, 0, 0, 0);
-    } else if (b & 0x13) {
+    } else if (m & 0x13) {
         func_0013CF80(2, D_1A30B0_003A4688.b40, D_1A30B0_003A4688.iB4, D_1A30B0_003A4688.b41, D_1A30B0_003A4688.b42);
-    } else if (b & 4) {
+    } else if (m & 4) {
         func_0013CFF8(2, D_1A30B0_003A4688.iB4, 0xC, 3);
     }
     D_1A30B0_003A4688.b43 = 0;
@@ -175,15 +175,15 @@ s32 func_003A4688(void) {
         f = (f32)D_1A30B0_003A4688.i0;
         if (D_001D5B70 == 0) {
             if (D_1A30B0_003A4688.hAC == 2) {
-                D_1A30B0_003A4688.hAE = 25;
                 D_1A30B0_003A4688.hAC = 3;
+                D_1A30B0_003A4688.hAE = 25;
             }
         } else if (D_1A30B0_003A4688.hAC == 0) {
             if (D_001D5B70 == 2) {
                 D_1A30B0_003A4688.hAC = 2;
             } else {
-                D_1A30B0_003A4688.hAE = 25;
                 D_1A30B0_003A4688.hAC = 1;
+                D_1A30B0_003A4688.hAE = 25;
             }
         }
         s = (u16)D_1A30B0_003A4688.hAE - 1;
@@ -205,7 +205,8 @@ s32 func_003A4688(void) {
             div = 4.0f;
             break;
         }
-        v = (s32)(f / div);
+        f /= div;
+        v = (s32)f;
         func_0013BF30(0, v);
         func_0013BF30(3, v);
     } else if (D_001D5B94 == 2 || (D_001D5B94 == 6 && (D_16C5A0 == 3 || D_16C5A0 == 0))) {
@@ -217,12 +218,12 @@ s32 func_003A4688(void) {
         func_0013BF30(3, D_1A30B0_003A4688.iC);
     } else {
         if (D_1A30B0_003A4688.i1B20 & 2) {
-            v = D_1A30B0_003A4688.i4;
+            s32 w = D_1A30B0_003A4688.i4;
             if (has_x != 0) {
-                v = v * 3 / 5;
+                w = w * 3 / 5;
             }
-            D_1A30B0_003A4688.i4 = v;
-            func_0013BF30(1, v);
+            D_1A30B0_003A4688.i4 = w;
+            func_0013BF30(1, w);
         }
         if (D_1A30B0_003A4688.i1B20 & 1) {
             func_0013BF30(0, D_1A30B0_003A4688.i0);
@@ -246,8 +247,8 @@ s32 func_003A4688(void) {
     func_0038CF58(vol, 0, 0xD0);
     func_0038CF58(dop, 0, 0xD0);
 
-    ch = D_1A3170;
-    for (i = 0; i < 52; i++, ch++) {
+    for (i = 0; i < 52; i++) {
+        ch = &D_1A3170[i];
         if (ch->state != 7) {
             if (ch->handle == 0) {
                 continue;
@@ -269,11 +270,12 @@ s32 func_003A4688(void) {
         if (!func_0038CEB0(ch->timer)) {
             continue;
         }
-        if (ch->state == 4) {
+        st = ch->state;
+        if (st == 4) {
             act[i] = 0x20;
             continue;
         }
-        if (ch->state != 6 && dead && ch->def->b18 != 0) {
+        if (st != 6 && dead && ch->def->b18 != 0) {
             act[i] = 0x20;
             continue;
         }
@@ -334,26 +336,28 @@ s32 func_003A4688(void) {
         if (*(u8 *)&ch->flags & 1) {
             continue;
         }
-        v = act[i];
-        act[i] = v | 2;
-        if (ch->flags & 0x20) {
-            continue;
+        {
+            s32 t = act[i];
+            act[i] = t | 2;
+            if (ch->flags & 0x20) {
+                continue;
+            }
+            if (ch->def->b19 & 0x10) {
+                continue;
+            }
+            act[i] = t | 6;
         }
-        if (ch->def->b19 & 0x10) {
-            continue;
-        }
-        act[i] = v | 6;
     }
 
     for (i = 0; i < 52; i++) {
         ch = &D_1A3170[i];
-        a = act[i];
-        if (a == 0) {
+        k = act[i];
+        if (k == 0) {
             continue;
         }
         h = ch->handle;
         ch->handle = -1;
-        if (a & 0x20) {
+        if (k & 0x20) {
             if (ch->state == 7) {
                 ch->obj = 0;
                 ch->i40 = 0;
@@ -366,7 +370,7 @@ s32 func_003A4688(void) {
             D_1A30B0_003A4688.ch[i].i4C = D_1A30B0_003A4688.ch[i].b13;
             continue;
         }
-        if (a & 0x10) {
+        if (k & 0x10) {
             func_0013C200(h, func_003A5950, &D_1A3170[i]);
             D_1A30B0_003A4688.ch[i].i4C = D_1A30B0_003A4688.ch[i].b13;
             continue;
@@ -375,7 +379,7 @@ s32 func_003A4688(void) {
         pitch = 0;
         i14 = ch->i14;
         flags = 1;
-        if ((a & 2) && !(ch->flags & 0x100)) {
+        if ((k & 2) && !(ch->flags & 0x100)) {
             pan = func_003A4228(ch, &ch->pos);
             flags = 7;
         }
