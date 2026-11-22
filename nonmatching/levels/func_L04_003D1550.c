@@ -286,15 +286,15 @@ void func_L04_003D1550(u8 *self) {
             } else {
                 y1 = *(f32 *)(self + 0x18);
                 *(f32 *)(self + 0x18) = y1 + ((*(f32 *)(v + 0xB8) - D_L04_001DEB80) - y1) * 0.109999999f;
-                if (D_001A4BE0.p35C == self) {
-                    *(f32 *)(v + 0xC0) = 0.0f;
-                } else {
+                if (D_001A4BE0.p35C != self) {
                     r2 = func_0038D160(D_001A4BE0.v80.x - *(f32 *)(self + 0x10),
                                       D_001A4BE0.v80.y - *(f32 *)(self + 0x14));
                     r2 = func_0038DB00(r2, *(f32 *)(self + 0xF8));
                     r2 = func_0038DAB8(r2, 3.14159274f);
                     *(f32 *)(v + 0xC0) = func_0038DAB8(*(f32 *)(v + 0xC0), r2 * 0.00999999978f) * 0.899999976f;
                     *(f32 *)(self + 0xF8) = func_0038DAB8(*(f32 *)(self + 0xF8), *(f32 *)(v + 0xC0));
+                } else {
+                    *(f32 *)(v + 0xC0) = 0.0f;
                 }
             }
             func_0038D000(&d, D_L04_001DEB70, self + 0xC0);
