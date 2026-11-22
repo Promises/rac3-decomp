@@ -434,7 +434,6 @@ function NTSC-U has and src/us/ has no C for.
 | `func_00389858` | boot_elf | Codex wave 7 near miss | near miss: 57 words differ with the file's flags |
 | `func_0038E1F8` | boot_elf | Codex wave 11 near miss | near miss: 23 words differ in its file's context with the file's flags (replaces the earlier draft, Codex wave 7 near miss: 27 words differ) |
 | `func_003AA780` | boot_elf | Claude wave 12 retry (wr02) near miss | near miss: 269 words differ with the file's flags (replaces the earlier draft, Codex wave 11 near miss: 283 words differ) |
-| `func_003BD3E8` | boot_elf | Codex wave 6 near miss | near miss: 146 words differ with the file's flags |
 | `func_003C1AE0` | boot_elf | Codex wave 8 near miss | near miss: does not compile in its file's context yet (declaration conflicts; the worker's note at the top has the details) |
 | `func_003EF698` | boot_elf | Codex wave 6 near miss | near miss: 173 words differ with the file's flags |
 | `func_L01_002FBB10` | levels | Codex wave 6 near miss | near miss: 13 words differ with the file's flags |
