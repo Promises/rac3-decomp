@@ -82,7 +82,12 @@ extern T_003D1550 D_001A30B0_003D1550; __asm__(".extern D_001A30B0_003D1550, 16"
 extern C_003D1550 D_00143950; __asm__(".extern D_00143950, 16");
 extern u8 *D_001D52FC;
 extern s32 D_L04_002D1F30[];
-extern u8 *D_L04_001DFD9C;
+typedef struct {
+    u8 p0[0x68];
+    u8 *p68;
+    u8 p6C[0x94];
+} M_003D1550;
+extern M_003D1550 *D_L04_001DFD9C;
 extern P_003D1550 D_L04_001E2840; __asm__(".extern D_L04_001E2840, 16");
 extern u8 D_L04_001F06C0[];
 extern f32 D_L04_001DEB60; __asm__(".extern D_L04_001DEB60, 4");
@@ -561,7 +566,7 @@ void func_L04_003D1550(u8 *self) {
             if (idx == -1) {
                 return;
             }
-            q = func_L01_00449020(D_L04_001DFD9C + (idx << 8));
+            q = func_L01_00449020(&D_L04_001DFD9C[idx]);
             if (q == 0) {
                 return;
             }
@@ -664,7 +669,7 @@ void func_L04_003D1550(u8 *self) {
             if ((u32)(self[0x43] - 4) < 2 && (self[0x60] & 2)) {
                 func_003C3A10(self, 0, 0, 5);
             }
-            h = *(u8 **)(*(u8 **)(D_L04_001DFD9C + (*(s32 *)(v + 0xD0) << 8) + 0x68) + 0x11C);
+            h = *(u8 **)(D_L04_001DFD9C[*(s32 *)(v + 0xD0)].p68 + 0x11C);
             if (h != 0) {
                 *(u8 **)(v + 0xD4) = h;
                 func_L04_003D3F68(self, v, &a);
