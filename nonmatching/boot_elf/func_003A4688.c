@@ -1,8 +1,8 @@
 /* func_003A4688 (PAL boot_elf, src/boot_elf/text/3A2FC0.c, flags -mvu0-use-vf0-vf2 -O2 -G8
    -fopt-stack -mno-check-zero-division @ps2as): the sound manager's per-frame update. Plain-C
    draft written 2026-11-22 from the assembly, starting from Flavius's functional draft
-   (nonmatching/functional/func_003A4688.c, 781 differences with the same line). Near miss: 583
-   differences (tools/check.py --target boot_elf), also 583 with --no-context (726 at #2942); the instruction
+   (nonmatching/functional/func_003A4688.c, 781 differences with the same line). Near miss: 505
+   differences (tools/check.py --target boot_elf), also 505 with --no-context (726 at #2942); the instruction
    sequence now lines up with retail's (difflib opcode ratio 0.90 against the functional draft's
    0.69), so the count is mostly register allocation and one-word shifts. NTSC-U: config/us/map.tsv
    says its copy differs (not carried).
@@ -123,7 +123,7 @@ s32 func_003A4688(void) {
     Ch_3A4688 *ch;
     Obj_3A4688 *obj;
     s32 a, b, n, cnt, i, r, v, flags, pan, pitch, h, i14, dead;
-    s32 s, m, st, k;
+    s32 s, m, st, k, fl;
     f32 cut, speed, f, div;
 
     has_x = D_2228D0[0];
@@ -247,8 +247,8 @@ s32 func_003A4688(void) {
     func_0038CF58(vol, 0, 0xD0);
     func_0038CF58(dop, 0, 0xD0);
 
-    for (i = 0; i < 52; i++) {
-        ch = &D_1A3170[i];
+    ch = D_1A3170;
+    for (i = 0; i < 52; i++, ch++) {
         if (ch->state != 7) {
             if (ch->handle == 0) {
                 continue;
@@ -312,16 +312,17 @@ s32 func_003A4688(void) {
         __asm__("sqc2 %1, %0" : "=m"(tmp) : "j"(qc));
         func_0038D348(&tmp, &tmp, 1.0f);
         dop[i] = func_0038D248(&tmp, &vel);
-        if (!(ch->flags & 0x10)) {
-            r = func_003A41C8_003A4688(ch, &ch->pos, 0, 0);
-            vol[i] = ch->vol * r / 1024;
+        fl = ch->flags;
+        if (!(fl & 0x10)) {
+            r = func_003A41C8_003A4688(ch, &D_1A3170[i].pos, 0, 0);
+            vol[i] = r * ch->vol / 1024;
             if (!(ch->def->b19 & 2)) {
                 act[i] |= 8;
             }
         } else {
             r = 0x400;
             vol[i] = ch->vol;
-            if (ch->flags & 0x200) {
+            if (fl & 0x200) {
                 act[i] |= 8;
             }
         }
