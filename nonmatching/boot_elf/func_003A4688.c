@@ -1,27 +1,34 @@
 /* func_003A4688 (PAL boot_elf, src/boot_elf/text/3A2FC0.c, flags -mvu0-use-vf0-vf2 -O2 -G8
    -fopt-stack -mno-check-zero-division @ps2as): the sound manager's per-frame update. Plain-C
-   draft written 2026-11-22 from the assembly, starting from Flavius's functional draft
-   (nonmatching/functional/func_003A4688.c, 781 differences with the same line). Near miss: 505
-   differences (tools/check.py --target boot_elf), also 505 with --no-context (726 at #2942); the instruction
-   sequence now lines up with retail's (difflib opcode ratio 0.90 against the functional draft's
-   0.69), so the count is mostly register allocation and one-word shifts. NTSC-U: config/us/map.tsv
-   says its copy differs (not carried).
-   What changed from the functional draft: the manager at 0x1A30B0 as one struct (channels at +0xC0
-   = D_1A3170); the VU0 code through include/vu0.h's helpers (vec_sub_ab/ba, vec_add_ab/ba,
-   qzero) where retail's lqc2/sqc2 order is theirs; ONE j-form block (marked PROVISIONAL, r3-34):
-   the relative-velocity / listener-direction sequence, where retail's 0x2C0 and 0x2F0 stack words
-   are reload spills of VU0 values (only vf1/vf2 exist), not locals; with that, the frame is
-   0x370 as retail. The ring loop as `if (b != a) do { } while`, the volume ramp's cases in
-   retail's order (3, 1, 2) with the 16-bit counter sign-extended at each use, the channel handle
-   as u32 (retail builds -1 as lui/ori 0xFFFF), and the two `||` tests split so fold does not turn
-   them into range checks. func_003A41C8 is declared void in the file but retail uses the s32 it
-   leaves in $v0, so this draft uses an s32 per-function alias (r3-55 1); D_1A30B0 and D_00222400
-   have per-function aliases because the file declares them with other types (r3-39).
-   Blockers: register allocation in both channel passes (retail spills the three array pointers
-   to 0x2D0-0x2D8 and keeps separate induction pointers for &ch->timer and &ch->pos; this draft
-   keeps the act[] pointer in $fp); the prologue's `lui` of D_2228D0 before the frame allocation;
-   retail's first reads of the manager through D_1A3170 - 0xC0 (writing that cast gives 728, not
-   kept); `D_1A3170[i].field` throughout pass 1 gives 728 (ratio 0.87), not kept. */
+   draft written 2026-11-22 from the assembly (Promises), starting from Flavius's functional draft
+   (nonmatching/functional/func_003A4688.c, 781 differences with the same line); retried
+   2026-11-23. Near miss: 505 differences (tools/check.py --target boot_elf), also 505 with
+   --no-context (726 before the retry). NTSC-U: config/us/map.tsv says its copy differs (not
+   carried).
+   Shape: the manager at 0x1A30B0 as one struct (channels at +0xC0 = D_1A3170); VU0 code through
+   include/vu0.h's helpers where retail's lqc2/sqc2 order is theirs, plus ONE j-form block
+   (PROVISIONAL, r3-34): retail's 0x2C0/0x2F0 stack words are reload spills of VU0 values, and
+   with that block the frame is 0x370 as retail. func_003A41C8 is declared void in the file but
+   retail uses the s32 it leaves in $v0: an s32 per-function alias (r3-55 1); D_1A30B0 and
+   D_00222400 have per-function aliases because the file declares them with other types (r3-39).
+   What the retry fixed: D_2228D0 and D_1A4F30 as unsized arrays (gcc splits the address itself,
+   so the lui of D_2228D0 goes before the frame allocation and D_1A4F30 loads through $v0);
+   separate locals for values that one variable used to carry (the flag byte at 0x43, the channel
+   state, the act[] word in both passes, the bus-1 volume), so they stop sharing a callee-saved
+   register; pass 1 walks the channels with a pointer (ch = D_1A3170; ch++) and passes
+   &D_1A3170[i].pos to func_003A41C8, which gives retail's $s0 channel, $fp counter,
+   $s6 = $s0 + 0x20 and the act[] pointer spilled to 0x2D0; ch->flags read once for the
+   0x10/0x200 tests; r * ch->vol; the ramp's set-ups store hAC before hAE; f /= div.
+   Blockers: (1) pass 1: retail also strength-reduces &ch->timer ($s5 = D_1A3170 + 0x54, stepped
+   by 0x80); here it is `addiu $a0, $s0, 0x54` at the call, which frees $s7 for the 0x20 constant;
+   writing D_1A3170[i].timer instead leaves an un-reduced `sll` in the loop. (2) pass 2: retail
+   keeps the channel in $s0 (stepped by 0x80), a separate 0x80-stepped offset spilled at 0x2E0
+   that it adds to D_1A3170 / D_1A30B0 at each callback argument and i4C store, and ends the loop
+   on the vol[] pointer; indexing every channel field as D_1A3170[i].f reproduces the offset and
+   the vol[]-pointer exit (594 differences, better aligned) but not the reduced channel pointer;
+   ch++ with &D_1A3170[i] arguments gives one hoisted pointer per argument instead.
+   (3) retail reads the manager's 0x43 byte through D_1A3170 - 0xC0; gcc folds that cast to
+   D_1A30B0 + 0x43. (4) the `if (b & 1) continue` test is xori/andi/beql in retail. */
 #include "vu0.h"
 
 typedef int u128_3A4688 __attribute__((mode(TI)));
