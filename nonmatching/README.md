@@ -431,11 +431,12 @@ function NTSC-U has and src/us/ has no C for.
 | `func_L20_003F3528` | levels | PAL reconstruction, wave 3 | 597 differences; pointer spills, packet setup, loops and VU0 allocation LL-1 (2026-11-21): 597 diff (tools/check.py), NTSC-U 597. Retail keeps the argument in `$fp` and precomputes packet pointers into stack slots from the prologue on; the draft spills `$a0` and differs from the second instruction, so it needs a rewrite, not tuning. |
 | `func_00125BE8` | boot_elf | Codex wave 4 near miss | near miss: 8 words differ with the file's flags |
 | `func_0012B300` | boot_elf | Codex wave 7 near miss | study aid (volatile); near miss: 183 words differ with the file's flags; landing test (2026-11-21): Codex wave 11's draft is 183 diff with `@ee29 -O2 -G0` on 12B300.c (182 with the file's line) |
+| `func_00387EF8` | boot_elf | PAL port of the frontbin twin's draft (`func_00387B18`) | near miss: 74 differences (tools/check.py) with the file's flags (-mvu0-use-vf0-vf2 -O2 -G8 -fopt-stack -mno-check-zero-division @ps2as), also 74 on NTSC-U (register allocation and the order of the global stores after the screen-mode branches); when it matches, drop `LINKER_REMNANT(func_003882C8)`, its delay slot |
 | `func_00389858` | boot_elf | Codex wave 7 near miss | near miss: 57 words differ with the file's flags |
 | `func_0038E1F8` | boot_elf | Codex wave 11 near miss | near miss: 23 words differ in its file's context with the file's flags (replaces the earlier draft, Codex wave 7 near miss: 27 words differ) |
 | `func_003AA780` | boot_elf | Claude wave 12 retry (wr02) near miss | near miss: 269 words differ with the file's flags (replaces the earlier draft, Codex wave 11 near miss: 283 words differ) |
 | `func_003BD3E8` | boot_elf | Codex wave 6 near miss | near miss: 146 words differ with the file's flags |
-| `func_003C1AE0` | boot_elf | Codex wave 8 near miss | near miss: does not compile in its file's context yet (declaration conflicts; the worker's note at the top has the details) |
+| `func_003C1AE0` | boot_elf | Codex wave 8 near miss; PAL retry from the frontbin twin's draft (`func_003C1728`) | near miss: 197 differences (tools/check.py) with the file's flags (-mvu0-use-vf0-vf2 -O2 -G8 -fopt-stack -mno-check-zero-division), in 3C1848.c's context; no NTSC-U twin (register allocation: retail keeps %hi(D_002D2060) in $s2 and rebuilds the base in each case block; gcc rebuilds the %hi per block) |
 | `func_003EF698` | boot_elf | Codex wave 6 near miss | near miss: 173 words differ with the file's flags |
 | `func_L01_002FBB10` | levels | Codex wave 6 near miss | near miss: 13 words differ with the file's flags |
 | `func_L01_002FDA10` | levels | Codex wave 8 near miss | near miss: 79 words differ with the file's flags |
