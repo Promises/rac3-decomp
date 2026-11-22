@@ -1,29 +1,34 @@
 /* Level 4 (Marcadia) and level 26, file L04_003D10D0.c (its line: -O2 -G8 -fopt-stack -mno-check-zero-division
- * -mvu0-use-vf0-vf2 @ps2as). First draft, written by hand from the assembly (task #2944, 2026-11-22).
- * tools/check.py: 96 differences at level 04 and 96 at level 26 with the file's line; 96 with --no-context
- * (NTSC-U, --version us: 1073, not pursued).
- * - Structure reached: the frame (0xF0, seven 16-byte vectors at sp+0x00..0x60), every call, every branch and
- *   the three-state dispatch on self[0x20] (1 = aiming, 2 = riding, 3 = target tracking) compile to retail's
- *   order; the word count equals retail's (1714 words). The differences are register choices and scheduling.
+ * -mvu0-use-vf0-vf2 @ps2as). Written by hand from the assembly (task #2944), retried in task #2947 (2026-11-22).
+ * tools/check.py: 8 differences at level 04 and 8 at level 26 with the file's line; 8 with --no-context at both
+ * (NTSC-U, --version us: 1004, not pursued).
+ * - Structure: the frame (0xF0, seven 16-byte vectors at sp+0x00..0x60), every call, every branch and the
+ *   three-state dispatch on self[0x20] (1 = aiming, 2 = riding, 3 = target tracking) are in retail's order; the
+ *   word count equals retail's (1714 words).
  * - Forms used: per-function padded struct types for D_001A4BE0, D_00143950, D_L04_001E2840 and
  *   D_001A30B0 (as D_001A30B0_003D1550, because func_L04_003D1128's block declares D_001A30B0 as `u8[]`),
  *   each with `.extern X, 16`, for retail's lui + addiu base and small offsets (Matching-Patterns l.1059,
- *   l.1063; a `u8[]` folds every offset into the lui); `$gp` floats declared with `.extern X, 4`;
- *   D_L04_001DEB70 as `f32[2]` so its address is a `$gp` addiu; vu0.h's vec_add/vec_sub helpers; a
- *   `*(vu0_q *)&g = 0` quadword zero (l.973); scoped constant locals `hi`/`lo` in the second stick clamp
- *   (r3-54 a), which load -1.0 before the add as retail does; one float local per value (a shared local
- *   kept every use in a callee-saved register).
- * - Still open (the 96): (1) case 1's join: retail stores self+0x18 in the delay slot of `b` to a shared
- *   `sw $zero, 0xC0($s2)` placed after the turn code, and tests D_001A4BE0+0x35C with `beql` into that store;
- *   here the store is duplicated in both arms. (2) The case-1 trail point copy: retail's float registers are
- *   f2/f0/f1 and the element pointer is $a0 (here f1/f2/f0 and $a1). (3) The two D_L04_001E2840 store groups:
- *   retail makes the constants 8 then 6 in $v1/$a0 and interleaves `addiu $s0, $sp, 0x50` after the 0x30 store.
- *   (4) Register swaps: $v0/$v1 around D_001A4BE0+0x25C0 before func_L04_003D3B90, $s4 holding the constant 2
- *   (retail) against D_001A4C60's high half (here), the D_001A30B0 element pointer, and the null-target path
- *   at the end of case 3.
- * - Tried without gain: case 1 with a `goto` past a single `*(v + 0xC0) = 0` (534); the D_L04_001E2840
- *   stores in three other orders (96 each: the order of the C does not move them).
- * Stopped at the bounded effort for a first draft (about 22 compiles, 1675 -> 96). */
+ *   l.1063; a `u8[]` folds every offset into the lui); D_L04_001DFD9C declared as a pointer to a 256-byte
+ *   per-function element type (M_003D1550), so the scaled index is added to the base as retail does;
+ *   `$gp` floats declared with `.extern X, 4`; D_L04_001DEB70 as `f32[2]` so its address is a `$gp` addiu;
+ *   vu0.h's vec_add/vec_sub helpers; a `*(vu0_q *)&g = 0` quadword zero (l.973); scoped constant locals
+ *   `hi`/`lo` in the second stick clamp (r3-54 a), which load -1.0 before the add as retail does; scoped
+ *   element pointers e1/e2 (r3-54 a); one float local per value (a shared local kept every use in a
+ *   callee-saved register).
+ * - Levers found in #2947 (96 -> 8): case 1's inner test written as `if (target != self) { turn } else
+ *   { v[0xC0] = 0; }`, so gcc cross-jumps the v[0x82] == 1 arm's store into the fall-through copy (96 -> 48);
+ *   a local per D_001A30B0 element pointer instead of the function-wide `ent` the trail code also uses
+ *   (48 -> 27; it also fixes the trail copy's registers); the D_L04_001E2840 stores in the order i28, f20,
+ *   f30, i38, i2C (27 -> 13; all 120 orders were compiled: this one and f20, i28, f30, i38, i2C give 13, the
+ *   rest 17 to 27); D_L04_001DFD9C typed as above (13 -> 8).
+ * - Still open (the 8): (1) after func_L04_0050CB28(0x31, 1), retail keeps &D_001A4BE0 in $v1 and its
+ *   0x25C0 pointer in $v0; here they are swapped (5 words). All six orders of the three statements, a scoped
+ *   pointer to D_001A4BE0, the 0x25C0 pointer in a scoped local or in the function-wide `q`: no change.
+ *   (2) The first stick-turn arm: retail computes &D_001A30B0 first (`addiu $v0` in the beq delay slot) and
+ *   shifts the index in place in $v1; here the shift goes first into $v0 (3 words). The index operand
+ *   swapped, `n * 128`, an E[] element type, a comma expression, `n` reloaded, a separate index local,
+ *   an `if (n != -1)` nest with a goto: no change (one comma form 30).
+ * Stopped at the bounded effort (about 45 compiles in #2947, plus the 120-order search). */
 #include "common.h"
 
 /* localdecomp:start func_L04_003D1550 */
