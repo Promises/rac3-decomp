@@ -39,6 +39,19 @@
  * longer than the o load, and as a store it also lowers register pressure, so it always wins. TImode casts on any
  * of the block's operands, other register-variable choices (244) and the 22 valid statement orders did not change
  * it (47 at that stage) or spilled.
+ * 2026-11-23 (RT-I2, rac3-w1, task #2982): still 2 (also 2 with --no-context; 2 at level 26, 3 at 24 and 4 at
+ * 39-53, where the extra words are only D_001E27C0's relocation; NTSC-U 2, the same pair). sched1's dump: the o
+ * load (lqc2 o + 0x10) and the a store issue in the same cycle (issue rate 2); the e load's only link to the a store
+ * is the anti dependence of reusing x, so the two have equal priority and the store wins on register weight. After
+ * reload sched2 sees a true memory dependence from the a store to the o load, so the order is fixed in sched1.
+ * Tried without a gain:
+ *  - each of the block's eight lqc2/sqc2 as asm or as a plain TImode copy (x = *(vu0_q *)&e; ...), all 256
+ *    combinations: 2 at best (a C store of a with a C store of e lets the a store issue at once: 3-9 or a spill);
+ *  - the e load into a fresh variable, with every asm/TImode-asm/C form of the o load, a store and e load (27, and
+ *    7 more with a C store of e): 10 at best, or a spill (0x170/0x180). With BLKmode operands the e load gets a
+ *    true memory dependence on the a store (the store gains priority); with TImode a/e the a store loses its output
+ *    dependence on the e store and issues before the D load; with C loads the e load takes the memory unit ahead of
+ *    the o load (it depends on the last insn issued).
  */
 #include "common.h"
 #include "vu0.h"
