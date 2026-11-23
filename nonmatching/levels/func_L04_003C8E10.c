@@ -17,6 +17,30 @@
  * LV-R2 retry (2026-11-22): 11 differences (tools/check.py) at level 04. A goto from the loop's success path to `found: on = 1;` in the x == 1 arm gives retail's exact bne/move/li arm (no if-conversion), but the loop is then rotated without retail's `b` into the body: 78. See nonmatching/README.md.
  * RT-A retry (2026-11-22): still 11 differences (tools/check.py) at level 04 with the file's flags; switch, nested-if, no-else and
  *   type variants of the x == 1 arm give 11 to 79 (nonmatching/README.md).
+ * NM-R18 retry (2026-11-23, upstream 59c6db4f): still 11 differences (tools/check.py) at levels 04 and 14, also
+ *   with --no-context; the C below is unchanged. Found:
+ *   (1) The `pos` copy (blocker 2) is fixed by writing it as an if/else assignment,
+ *       `if (*(s8 *)(v + 0x7E) != 0) { pos = D_L04_001E27C0; } else { pos = D_001A4C60_003C8E10; }`:
+ *       the copy then goes through $v1 (`lq $v1; sq $v1` before the lbu) and the bnez delay slot takes
+ *       retail's `li $v0, 1`. With the arm still if-converted this gives 60, because the arm is one word
+ *       short and everything after it shifts; that block is otherwise exact.
+ *   (2) With that `pos` form, `} else if (x == 1) { on = 1; x = 1; } else { on = 0; }` gives MATCH at 04 and 14
+ *       and with --no-context. The `x = 1` is a dead store retail does not have (flow deletes it). Its only
+ *       effect is that the arm has two insns at every jump pass before reload, so jump.c's two rewrites
+ *       (`if (c) x = a; else x = b;` to `x = b; if (c) x = a;`, then that to a conditional move or store-flag,
+ *       seen in the -da dumps: jump1 converts `on = x`, the jump pass after cse converts `on = m[0x95]`)
+ *       never fire. It steers code generation, so it is an artificial barrier (AGENTS.md; r3-10) and is
+ *       NOT used here; it is a probe, kept for watcher-2's ruling.
+ *   (3) The loop needs its `break`: expand_end_loop moves the loop body up to the last jump to the loop's end
+ *       label, which gives retail's `b` into the body; a `goto found` into the arm leaves only the exit test
+ *       moved and jump1 then rotates the loop (73 with the if/else `pos`).
+ *   Tried with the if/else `pos` (60 to 82, all if-converted except the goto): the arm as `on = 1`, `on = x`,
+ *   `on = m[0x95]`, `on++`, with and without the else arm; `else if (x != 1) on = 0; else on = 1;` (62); a nested
+ *   `switch (x)` with case 1 and default, without default, or with `on = x` (60 to 62); a second `if (x == 1)`
+ *   after the x == 0 arm (74); a goto from the loop into the arm (73); a static inline helper returning the
+ *   flag (82). With the ternary `pos` (11 to 88): `on |= 1` 68, `on += x` and `on |= x` 12, with or without the
+ *   else arm; `on = m[0x95] != 0` 68; `else if (m[0x95] == 1)` 68; gotos into the else arm from the loop's
+ *   exits keep the arm a branch but lose the top `on = 0` and rotate the loop (85 to 88).
  */
 #include "common.h"
 
