@@ -1,10 +1,10 @@
 /* func_003A4688 (PAL boot_elf, src/boot_elf/text/3A2FC0.c, flags -mvu0-use-vf0-vf2 -O2 -G8
    -fopt-stack -mno-check-zero-division @ps2as): the sound manager's per-frame update. Plain-C
    draft written 2026-11-22 from the assembly (Promises), starting from Flavius's functional draft
-   (nonmatching/functional/func_003A4688.c, 781 differences with the same line); retried
-   2026-11-23. Near miss: 505 differences (tools/check.py --target boot_elf), also 505 with
-   --no-context (726 before the retry). NTSC-U: config/us/map.tsv says its copy differs (not
-   carried).
+   (nonmatching/functional/func_003A4688.c, 781 differences with the same line); retried twice
+   on 2026-11-23. Near miss: 437 differences (tools/check.py --target boot_elf), also 437 with
+   --no-context (505 after the first retry, 726 before it). NTSC-U: config/us/map.tsv says its
+   copy differs (not carried).
    Shape: the manager at 0x1A30B0 as one struct (channels at +0xC0 = D_1A3170); VU0 code through
    include/vu0.h's helpers where retail's lqc2/sqc2 order is theirs, plus ONE j-form block
    (PROVISIONAL, r3-34): retail's 0x2C0/0x2F0 stack words are reload spills of VU0 values, and
@@ -27,8 +27,16 @@
    on the vol[] pointer; indexing every channel field as D_1A3170[i].f reproduces the offset and
    the vol[]-pointer exit (594 differences, better aligned) but not the reduced channel pointer;
    ch++ with &D_1A3170[i] arguments gives one hoisted pointer per argument instead.
-   (3) retail reads the manager's 0x43 byte through D_1A3170 - 0xC0; gcc folds that cast to
-   D_1A30B0 + 0x43. (4) the `if (b & 1) continue` test is xori/andi/beql in retail. */
+   (3) the `if (b & 1) continue` test is xori/andi/beql in retail; nine wordings (`!(b & 1) == 0`,
+   `(b & 1) == 0` around the rest, a `!` local, `~b & 1`, `(b ^ 1) & 1`, 1-bit u8/u32 bit-field
+   casts) all give lbu/andi/bnel. (4) one extra nop before the ramp's div.s (three wordings of
+   `f /= div` give the same bytes), and register choices around the ring update.
+   Second retry: the manager's 0x40-0x43 bytes and 0xB4 word are read through a scoped pointer
+   derived from the channel array (c0 = D_1A30B0.ch; mg = (u8 *)c0 - 0xC0), which gives retail's
+   addiu 0x3170 / addiu -0xC0 pair (505 -> 437); the folded forms (D_1A30B0.b43, or
+   (u8 *)D_1A3170 - 0xC0 as one expression) stay at 505, and c0 = D_1A3170 lets gcse keep its
+   lui in $s5 (750). A separate timer pointer (tm = D_1A3170[0].timer or ch->timer, stepped by
+   0x80) in pass 1 gives 561. */
 #include "vu0.h"
 
 typedef int u128_3A4688 __attribute__((mode(TI)));
