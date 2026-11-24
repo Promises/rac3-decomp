@@ -43,7 +43,21 @@
    offset but computes ch as offset + D_1A3170 at the loop top and reuses it at the arguments (528);
    a ch++ pointer (from D_1A3170 or D_1A30B0.ch) with &D_1A3170[i] arguments makes one hoisted,
    spilled pointer per argument site (521, 553); ch = &D_1A30B0.ch[i] with &D_1A3170[i] arguments
-   gives the same per-site pointers (457); arguments written D_1A30B0.ch + i give 530, 548, 551. */
+   gives the same per-site pointers (457); arguments written D_1A30B0.ch + i give 530, 548, 551.
+   CLOSEOUT attempt 1 of 2 (2026-11-24): no gain, still 437. The loop dump (-da, .loop) explains
+   pass 2: retail's 0x2E0 word is the reduced i * 0x80 giv, and $s5 is the copy loop.c emits for a
+   NON-replaceable giv. Writing `off = i * 0x80;` once at the start of the lower path (after the
+   0x10 test) and using (Ch *)((u8 *)D_1A3170 + off) and ((Mgr *)((u8 *)&D_1A30B0 + off))->ch[0]
+   there reproduces retail's lower path (the copy loaded from the giv's slot into a saved
+   register, then lui/addiu/addu at each argument and at the i4C store). But the 0x20 and 0x10
+   paths' sums (i * 0x80 + D_1A3170, + D_1A30B0) stay replaceable givs that loop.c reduces into
+   three more spilled pointers, where retail adds the reloaded offset at each site; that costs
+   more than the lower path gains (with ch++: 554; with ch = &D_1A3170[i]: 499). Also tried: an
+   explicit 0x80-stepped biv for the arguments (567, its i4C giv is still reduced; a shared
+   `goto` tail for the i4C store, 567); `off` assigned at the loop top (replaceable, every sum
+   reduced, 560); `off` assigned in each path (not a giv, `sll` from an unreduced i, 581);
+   D_1A30B0.ch-based arguments in some paths (552-560); a separate pass-2 channel variable (564,
+   frame 0x380). */
 #include "vu0.h"
 
 typedef int u128_3A4688 __attribute__((mode(TI)));
