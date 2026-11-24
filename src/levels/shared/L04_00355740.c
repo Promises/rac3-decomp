@@ -10,7 +10,158 @@ typedef struct {
     S_34A460b *p68;
 } S_34A460;
 
-INCLUDE_ASM("asm/levels", func_L04_00355740);
+/* localdecomp:start func_L04_00355740 */
+/* PROVISIONAL, VU0 j-constraint form (docs/wiki/Matching-Patterns.md, "VU0 j-form") */
+typedef struct { f32 u, v; } UV_355740;
+typedef struct {
+    vu0_v4 v[4];
+    s32 col[4];
+    UV_355740 uv[4];
+    long x70, x78, x80, x88;
+} Q_355740;
+
+extern void func_L01_0034D840(void *);
+extern void func_003D93B0(void *, s32, s32, s32);
+extern void func_0038CF68(void *, void *, f32);
+extern void func_0038CE90(void *, void *, void *);
+extern void func_003D2DA0(void *, s32, s32);
+extern f32 func_00382538(void);
+extern void func_003D9508(void *, s32, u32, s32, f32, f32, f32);
+extern vu0_v4 D_L04_001E27C0;
+
+void func_L04_00355740(void *unused, u32 c0, u32 c1, u8 *o) {
+    Q_355740 q;
+    vu0_v4 a;
+    vu0_v4 b;
+    vu0_v4 c;
+    vu0_v4 d;
+    vu0_v4 f;
+    vu0_v4 e;
+    vu0_v4 g;
+    u8 *t;
+    s32 i;
+
+    t = *(u8 **)(o + 0x68);
+    func_L01_0034D840(&q);
+    func_003D93B0(&q, 0x2F, 0, 0x80);
+    q.col[1] = -1;
+    q.col[3] = 0x40FFFFFF;
+    q.col[2] = 0x40FFFFFF;
+    q.col[0] = -1;
+    q.uv[0].u = 0.0f;
+    q.uv[0].v = 0.0f;
+    q.uv[1].u = 0.0f;
+    q.uv[1].v = 1.0f;
+    q.uv[2].u = 1.0f;
+    q.uv[2].v = 0.0f;
+    q.uv[3].u = 1.0f;
+    q.uv[3].v = 1.0f;
+    for (i = 0; i < 4; i++) {
+        q.uv[i].u -= *(f32 *)(t + 0x28);
+        if (q.uv[i].u <= 7.0f) {
+            q.uv[i].u += 7.0f;
+        }
+    }
+    *(f32 *)(t + 0x28) += 0.1f;
+    if (4.0f <= *(f32 *)(t + 0x28)) {
+        *(f32 *)(t + 0x28) -= 4.0f;
+    }
+    func_0038CF68(&a, t, -0.17f);
+    {
+        vu0_q x, y;
+        __asm__("lqc2 %0, %1" : "=j"(y) : "m"(a));
+        __asm__("lqc2 %0, %1" : "=j"(x) : "m"(*(vu0_v4 *)(o + 0x10)));
+        __asm__("vadd.xyz %0, %1, %2" : "=j"(x) : "j"(x), "j"(y));
+        __asm__("lqc2 %0, %1" : "=j"(y) : "m"(D_L04_001E27C0));
+        __asm__("sqc2 %1, %0" : "=m"(e) : "j"(y));
+        __asm__("lqc2 %0, %2\n\tsqc2 %3, %1" : "=&j"(y), "=m"(a) : "m"(*(vu0_v4 *)(o + 0x10)), "j"(x));
+        __asm__("lqc2 %0, %1" : "=j"(x) : "m"(e));
+        __asm__("vsub.xyz %0, %1, %2" : "=j"(y) : "j"(y), "j"(x));
+        __asm__("sqc2 %1, %0" : "=m"(b) : "j"(y));
+    }
+    if (t[0x34] != 0 && *(f32 *)(t + 0x38) < 4.0f) {
+        func_0038CF68(&c, t, -*(f32 *)(t + 0x38));
+    } else {
+        func_0038CF68(&c, t, -4.0f);
+    }
+    vec_add_ba(&d, &a, &c);
+    func_0038CE90(&f, &b, &c);
+    func_0038CF68(&f, &f, 0.1f);
+    vec_add_ba(&q.v[0], o + 0x10, &f);
+    vec_sub_ab(&q.v[1], o + 0x10, &f);
+    vec_add_ba(&q.v[2], &d, &f);
+    vec_sub_ab(&q.v[3], &d, &f);
+    func_003D2DA0(&q, 0, 0);
+    q.col[0] = q.col[2];
+    q.col[1] = q.col[3];
+    q.col[3] = 0x801010;
+    q.col[2] = 0x801010;
+    *(vu0_q *)&q.v[0] = *(vu0_q *)&q.v[2];
+    *(vu0_q *)&q.v[1] = *(vu0_q *)&q.v[3];
+    vec_add_ba(&q.v[2], &q.v[2], &c);
+    vec_add_ab(&q.v[3], &q.v[3], &c);
+    func_003D2DA0(&q, 0, 0);
+    func_003D93B0(&q, 0x29, 1, 0x80);
+    q.col[1] = c0;
+    q.col[0] = c0;
+    q.col[3] = c1;
+    q.col[2] = c1;
+    q.uv[0].u = 0.0f;
+    q.uv[0].v = 0.0f;
+    q.uv[1].u = 0.0f;
+    q.uv[1].v = 1.0f;
+    q.uv[2].u = 1.0f;
+    q.uv[2].v = 0.0f;
+    q.uv[3].u = 1.0f;
+    q.uv[3].v = 1.0f;
+    func_0038CF68(&f, &f, 0.2f);
+    {
+        vu0_q x, y, r, s, u;
+        __asm__("lqc2 %0, %1" : "=j"(y) : "m"(f));
+        __asm__("lqc2 %0, %1" : "=j"(x) : "m"(*(vu0_v4 *)(o + 0x10)));
+        __asm__("vadd.xyz %0, %1, %2" : "=j"(r) : "j"(x), "j"(y));
+        __asm__("lqc2 %0, %1" : "=j"(s) : "m"(*(vu0_v4 *)(o + 0x10)));
+        __asm__("sqc2 %1, %0" : "=m"(q.v[0]) : "j"(r));
+        __asm__("lqc2 %0, %1" : "=j"(r) : "m"(*(vu0_v4 *)(o + 0x10)));
+        __asm__("sqc2 %1, %0" : "=m"(g) : "j"(r));
+        __asm__("lqc2 %0, %1" : "=j"(u) : "m"(f));
+        __asm__("vsub.xyz %0, %1, %2" : "=j"(s) : "j"(s), "j"(u));
+        __asm__("sqc2 %1, %0" : "=m"(q.v[1]) : "j"(s));
+        __asm__("lqc2 %0, %1" : "=j"(s) : "m"(g));
+        __asm__("lqc2 %0, %1" : "=j"(u) : "m"(c));
+        __asm__("vadd.xyz %0, %1, %2" : "=j"(u) : "j"(s), "j"(u));
+        __asm__("sqc2 %1, %0" : "=m"(d) : "j"(u));
+    }
+    vec_add_ba(&d, &d, &c);
+    vec_add_ab(&q.v[2], &d, &f);
+    vec_sub_ab(&q.v[3], &d, &f);
+    func_003D2DA0(&q, 0, 0);
+    q.col[1] = c0;
+    q.col[3] = c1;
+    q.col[0] = c0;
+    q.col[2] = c1;
+    func_0038CF68(&f, &f, 0.4f);
+    func_0038CF68(&a, t, -0.1f);
+    {
+        vu0_q x, y, r;
+        __asm__("lqc2 %0, %1" : "=j"(y) : "m"(a));
+        __asm__("lqc2 %0, %1" : "=j"(x) : "m"(*(vu0_v4 *)(o + 0x10)));
+        __asm__("vadd.xyz %0, %1, %2" : "=j"(x) : "j"(x), "j"(y));
+        __asm__("sqc2 %1, %0" : "=m"(a) : "j"(x));
+        __asm__("lqc2 %0, %1" : "=j"(r) : "m"(f));
+        __asm__("lqc2 %0, %1" : "=j"(y) : "m"(a));
+        __asm__("vadd.xyz %0, %1, %2" : "=j"(y) : "j"(y), "j"(r));
+        __asm__("sqc2 %1, %0" : "=m"(q.v[0]) : "j"(y));
+    }
+    vec_sub_ba(&q.v[1], &a, &f);
+    vec_add_ab(&d, &a, &c);
+    vec_add_ba(&d, &d, &c);
+    vec_add_ab(&q.v[2], &d, &f);
+    vec_sub_ab(&q.v[3], &d, &f);
+    func_003D2DA0(&q, 0, 0);
+    func_003D9508(o + 0x10, 0x13, 0x60804020, 1, 0.3f, 0.08f, func_00382538());
+}
+/* localdecomp:end func_L04_00355740 */
 
 /* localdecomp:start func_L04_00355BF8 */
 
