@@ -1,7 +1,7 @@
 /* func_L04_00325C08: Promises (task 2790, 2026-11-21; retried in tasks 2907, 2026-11-22, and 3013,
- * 2026-11-23; closeout attempt 1 of 2 in task 3055, 2026-11-24), from upstream's
- * nonmatching/functional/func_L04_00325C08.c.
- * Near miss: 21 differences (tools/check.py --no-context), level 04, with
+ * 2026-11-23; closeout attempt 1 of 2 in task 3055 and attempt 2 of 2 in task 3060, 2026-11-24), from
+ * upstream's nonmatching/functional/func_L04_00325C08.c. CLOSEOUT attempt 2 of 2: 21 -> 3; DONE.
+ * Near miss: 3 differences (tools/check.py --no-context), level 04, with
  * -O2 -G8 -fopt-stack -mno-check-zero-division -mvu0-use-vf0-vf2 @ps2as on L04_00325C08.c (the file has
  * neither the VU0 flag nor @ps2as yet; it has no other function). The file's own line does not compile it
  * (VU0 "vf17 spilled"). -fopt-stack stays: retail saves with sd in a 0xF0 frame.
@@ -31,16 +31,23 @@
  * - func_L01_0044AF78 declared (void *, void *, void *, f32, f32, s32, s32, s32, f32 x5, s32 x6), an
  *   EABI-equivalent order upstream uses at other call sites; it changes the argument schedule (24 -> 21).
  *
- * Left (21, one block: the func_L01_0044AF78 call and the yaw computation after it):
- * - gcse's PRE hoists high(D_001D66B0) to the function's start, and local-alloc's update_equiv_regs
- *   moves it back in front of its lo_sum. sched2 then issues our lui $a1 first in the block, while
- *   retail has the lui/addiu pair after sw $zero, 0($sp);
- * - the parity shift that follows: sched2 hoists sgn = 1 ($fp) above the call and reorg puts it in the
- *   jal's delay slot, where retail has move $t3, $zero; k = 0 ($s5) then goes right after the call,
- *   where sched1 had it (and retail has it) before the addu of the yaw pointer.
- * Tried without effect on these 21: the other ten argument orders upstream declares for this callee,
- * sgn = 1 before the call (21) or before the if (237), k = 0 at three places before the loop, the yaw
- * pointer block-scoped or indexed twice (24/40), the operand order of base + index.
+ * Task 3060 (21 -> 3): D_001D66B0 through a local `tbl`, assigned in the first opening block and passed
+ * to func_L01_0044AF78. tbl gets no hard register and reload rematerialises it at the call as one insn,
+ * (set $a1 (symbol_ref D_001D66B0)) in the -dR dump, which prints as retail's adjacent lui/addiu; sgn = 1
+ * and k = 0 fall back to retail's places (21 -> 3). Where the assignment goes only
+ * moves which block's $v0/$v1 choice it disturbs: at the function's top 10, before the opening loops 5,
+ * before each burst loop 5, just before the call 21 (tbl gets a register), before the if 85; 3 inside
+ * the first opening block (here), inside the burst loops or inside the if.
+ *
+ * Left (3, the call block): our la $a1 issues one slot before sw $zero, 0($sp); retail has the sw first.
+ * Our reading of the -fsched-verbose-5 trace: sched1 orders the two equal-priority insns by register
+ * weight. Our (set $a1 tbl) is tbl's last use, so it frees a register (weight -1) and goes ahead of the
+ * store (weight 0); sched2 then keeps that order.
+ * With tbl kept live after the call (a test store `D_L04_0021FD88[0] = tbl;` before the last loop) the
+ * block comes out in retail's order, so retail's $a1 move did not free a register there. No form found
+ * that keeps it live without extra code. Also tried: the ten argument orders upstream declares for this
+ * callee, with tbl (3 for four of them, 6-8 for the rest), and the assignment at 108 statement positions
+ * (3 at best).
  */
 #include "common.h"
 #include "vu0.h"
@@ -90,12 +97,14 @@ void func_L04_00325C08(u8 *m, void *basis, f32 *off, f32 extra) {
     u8 *p;
     u8 *q;
     Pl_325C08 *pl;
+    u8 *tbl;
 
     scale = *(f32 *)(vars + 0x14);
     fa = D_L04_001DC7A8 * scale * 210000.0f;
     fb = D_L04_001DC7AC * scale * 210000.0f;
     {
         q = func_L01_0046FB40(m + 0x10, off, (D_L04_001DC7B0 * 5 + 2) / 6, 0x388EF7, 0, 100, 0, fa, fb, 0.0f, 0);
+        tbl = D_001D66B0;
         if (q) {
             q[2] = *D_L04_0021FD88[0];
             q[9] = 0xF0;
@@ -248,7 +257,7 @@ void func_L04_00325C08(u8 *m, void *basis, f32 *off, f32 extra) {
         func_L01_002F9578(m, m + 0x10, pos, 0xD, 0xFF, 0, 0, 0x28, *(f32 *)(vars + 0x14) * 3.5f);
     }
 
-    func_L01_0044AF78(m, D_001D66B0, m + 0x10, 0.0f, 0.0f, 0, 0, 0, 0.0f, 0.0f, 9.0f, 0.0f, extra * *(f32 *)(vars + 0x14), -1, 0, 0, -1, 0, 0x1010001);
+    func_L01_0044AF78(m, tbl, m + 0x10, 0.0f, 0.0f, 0, 0, 0, 0.0f, 0.0f, 9.0f, 0.0f, extra * *(f32 *)(vars + 0x14), -1, 0, 0, -1, 0, 0x1010001);
 
     sgn = 1;
     pl = &D_L04_001E2840[D_001D52F0];
